@@ -26,7 +26,7 @@ export default defineConfig({
     open: true,
     proxy: {
       '/auth': {
-        target: 'http://10.240.69.59:32519',
+        target: 'https://jiajianup.top',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/auth/, '')
       }

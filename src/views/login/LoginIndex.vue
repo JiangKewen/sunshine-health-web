@@ -2,16 +2,21 @@
   <div class="login-wrap"></div>
   <section class="login-form-wrap">
     <h2 class="login-title">后台管理系统</h2>
-    <el-form class="login-form" :model="loginForm">
+    <el-form ref="formRef" class="login-form" :model="loginForm" :rules="rules">
       <el-form-item>
-        <el-input v-model="loginForm.name" placeholder="用户名">
+        <el-input v-model="loginForm.name" placeholder="用户名" prop="name">
           <template #prepend>
             <el-icon><User /></el-icon>
           </template>
         </el-input>
       </el-form-item>
       <el-form-item>
-        <el-input type="password" v-model="loginForm.password" placeholder="登录密码">
+        <el-input
+          type="password"
+          v-model="loginForm.password"
+          placeholder="登录密码"
+          prop="password"
+        >
           <template #prepend>
             <el-icon><Lock /></el-icon>
           </template>
@@ -25,49 +30,67 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { User, Lock } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
+import { postLogin } from '@/service/api'
 
 const loginForm = reactive({
   name: '',
   password: ''
 })
+const rules = reactive({
+  name: [{ required: true, message: '请输入用户', trigger: ['blur', 'change'] }],
+  password: [{ required: true, message: '请输入密码', trigger: ['blur', 'change'] }]
+})
+const formRef = ref(null)
 
 const router = useRouter()
 function onSumbit() {
-  window.localStorage.setItem('TOKEN', 'XXXXXX')
-  router.push('/')
+  formRef.value.validate((valid) => {
+    console.log('valid', valid)
+    if (valid) {
+      postLogin({
+        data: loginForm
+      }).then((res) => {
+        console.log('res', res)
+      })
+      window.localStorage.setItem('TOKEN', 'XXXXXX')
+      router.push('/')
+    }
+  })
 }
+console.log(router)
 </script>
 
 <style scoped lang="scss">
 .login-wrap {
   height: 100vh;
-  background: url('/bg.jpeg');
+  background: url('/bg2.jpeg');
   background-size: cover;
   background-repeat: no-repeat;
-  filter: blur(5px);
 }
 .login-form-wrap {
   position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 400px;
-  border-radius: 3px;
-  background: rgba(100, 100, 100, 0.3);
+  right: 10%;
+  top: 56%;
+  transform: translate(0%, -50%);
+  width: 410px;
+  border-radius: 5px;
+  background: rgba(180, 180, 180, 0.3);
   overflow: hidden;
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(10px);
   .login-title {
     line-height: 50px;
     text-align: center;
     font-size: 28px;
-    color: #fff;
+    color: #333;
     border-bottom: 1px solid #ddd;
+    padding-bottom: 20px;
+    margin: 40px 0 auto;
   }
   .login-form {
-    padding: 30px 50px;
+    padding: 30px 60px 50px 60px;
   }
 }
 </style>
