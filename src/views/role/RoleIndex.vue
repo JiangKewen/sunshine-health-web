@@ -2,7 +2,7 @@
   <div class="role-wrap main">
     <div class="page-top flex">
       <section class="search-box">
-        <el-select v-model="status" class="inputs" placeholder="状态" clearable>
+        <el-select v-if="false" v-model="status" class="inputs" placeholder="状态" clearable>
           <el-option
             v-for="item in statusList"
             :key="item.value"
@@ -10,22 +10,35 @@
             :value="item.value"
           />
         </el-select>
-        <el-input v-model="keyword" class="inputs" placeholder="搜索" clearable />
+        <el-input v-if="false" v-model="keyword" class="inputs" placeholder="搜索" clearable />
       </section>
       <el-button type="primary" @click="chgShowAdd(true)">新增角色</el-button>
     </div>
 
-    <el-table :data="roleData" style="width: 100%" border header-cell-class-name="t-head-cell">
-      <el-table-column prop="date" label="Date" width="180" />
-      <el-table-column prop="name" label="角色名称" width="180" />
-      <el-table-column prop="address" label="Address" />
+    <el-table :data="tableData" style="width: 100%" border header-cell-class-name="t-head-cell">
+      <el-table-column prop="roleName" label="角色名称" />
+      <el-table-column label="操作" width="120">
+        <template #default="{ row }">
+          <el-button link type="primary" @click="edit(row)">编辑</el-button>
+        </template>
+      </el-table-column>
     </el-table>
+    <el-pagination
+      background
+      :page-sizes="[10, 20, 50]"
+      v-model:current-page="pages.currPage"
+      v-model:page-size="pages.pageSize"
+      :total="pages.total"
+      layout="total, sizes, prev, pager, next, jumper"
+      @size-change="getPageData"
+      @current-change="getPageData"
+    />
   </div>
 
-  <el-dialog v-model="showAdd" title="新增角色" width="666px">
-    <el-form ref="formRef" :model="addForm" :rules="rules" label-width="100px" status-icon>
-      <el-form-item label="角色名称" prop="name">
-        <el-input v-model="addForm.name" />
+  <el-dialog v-model="showAdd" :title="title" width="666px">
+    <el-form ref="formRef" :model="addForm" :rules="rules" label-width="100px">
+      <el-form-item label="角色名称" prop="roleName">
+        <el-input v-model="addForm.roleName" clearable />
       </el-form-item>
     </el-form>
     <template #footer>
@@ -39,6 +52,8 @@
 
 <script setup>
 import { ref, reactive } from 'vue'
+import { postRole, putRole, getRoleList } from '@/service/api'
+import { ElMessage } from 'element-plus'
 
 const statusList = [
   {
@@ -53,49 +68,88 @@ const statusList = [
 const status = ref('')
 const keyword = ref('')
 
-const roleData = [
-  {
-    date: '2016-05-03',
-    name: 'Tom',
-    address: 'No. 189, Grove St, Los Angeles'
-  },
-  {
-    date: '2016-05-02',
-    name: 'Tom',
-    address: 'No. 189, Grove St, Los Angeles'
-  },
-  {
-    date: '2016-05-04',
-    name: 'Tom',
-    address: 'No. 189, Grove St, Los Angeles'
-  },
-  {
-    date: '2016-05-01',
-    name: 'Tom',
-    address: 'No. 189, Grove St, Los Angeles'
-  }
-]
+const tableData = ref([])
+const pages = reactive({
+  pageSize: 10,
+  currPage: 1,
+  total: 0
+})
+function getPageData() {
+  getRoleList({
+    params: {
+      pageSize: pages.pageSize,
+      currPage: pages.currPage
+    }
+  }).then((res) => {
+    tableData.value = res.data // TODO 具体值待定
+    pages.total = tableData.value.length
+  })
+}
+getPageData()
 
 const showAdd = ref(false)
 function chgShowAdd(val) {
   showAdd.value = val
+  addForm.name = ''
+  title.value = '新增角色'
 }
 
+const title = ref('新增角色')
 const formRef = ref(null)
 const addForm = reactive({
-  name: ''
+  roleName: ''
 })
+let editRoleId = ''
 const rules = reactive({
-  name: [{ required: true, message: '请输入角色名称', trigger: ['blur', 'change'] }]
+  roleName: [{ required: true, message: '请输入角色名称', trigger: ['blur', 'change'] }]
 })
 function onSumbit() {
   formRef.value.validate((valid) => {
     console.log('valid', valid)
     if (valid) {
-      addForm.name = ''
-      showAdd.value = false
+      if (title.value === '新增角色') {
+        onAdd()
+      } else {
+        onEdit()
+      }
     }
   })
+}
+function onAdd() {
+  postRole({
+    data: addForm
+  })
+    .then((res) => {
+      console.log('新增角色', res)
+      ElMessage.success('新增角色成功')
+      addForm.name = ''
+      showAdd.value = false
+    })
+    .catch((err) => {
+      ElMessage.error(`新增角色失败:${err.message}`)
+    })
+}
+function onEdit() {
+  putRole({
+    data: { ...addForm, roleId: editRoleId }
+  })
+    .then((res) => {
+      console.log('编辑角色', res)
+      ElMessage.success('编辑角色成功')
+      addForm.name = ''
+      showAdd.value = false
+    })
+    .catch((err) => {
+      ElMessage.error(`编辑角色失败:${err.message}`)
+    })
+}
+
+function edit(row) {
+  console.log('row', row)
+  showAdd.value = true
+  title.value = '编辑角色'
+  addForm.roleName = row.roleName
+  editRoleId = row.roleId
 }
 </script>
 

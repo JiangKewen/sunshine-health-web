@@ -5,7 +5,7 @@ import axios from 'axios'
 
 // const AUTH_TOKEN = ''
 const instance = axios.create({
-  baseURL: import.meta.env.VITE_APP_BASEURL,
+  // baseURL: import.meta.env.VITE_APP_BASEURL, // mock的时候需要关闭
   headers: {
     // common: {
     //   Authorization: AUTH_TOKEN

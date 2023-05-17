@@ -136,7 +136,7 @@ function chgCollapse() {
 .app-body {
   .app-menu {
     min-height: calc(100vh - 72px);
-    ::v-deep {
+    :deep {
       &:not(.el-menu--collapse) {
         width: 200px;
       }

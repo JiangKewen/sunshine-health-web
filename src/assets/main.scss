@@ -23,6 +23,12 @@ body {
   .t-head-cell {
     background-color: rgb(245, 247, 250) !important;
   }
+
+  .el-pagination {
+    margin-top: 12px;
+    display: flex;
+    justify-content: end;
+  }
 }
 
 
