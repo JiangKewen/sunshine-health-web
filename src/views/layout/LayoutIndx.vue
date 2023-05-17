@@ -19,7 +19,7 @@
         <template #dropdown>
           <el-dropdown-menu>
             <el-dropdown-item>
-              <el-link>退出登录</el-link>
+              <el-link @click="logout">退出登录</el-link>
             </el-dropdown-item>
           </el-dropdown-menu>
         </template>
@@ -50,8 +50,8 @@
 
 <script setup>
 import { Fold, ArrowDown, Expand, Monitor, User, Service, Document } from '@element-plus/icons-vue'
-import { useRouter } from 'vue-router'
-import { ref, markRaw } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { ref, markRaw, computed } from 'vue'
 
 const router = useRouter()
 function appToken() {
@@ -61,6 +61,10 @@ function appToken() {
   }
 }
 appToken()
+function logout() {
+  window.localStorage.clear()
+  router.push('/login')
+}
 
 const menu = ref([
   {
@@ -85,7 +89,10 @@ const menu = ref([
   }
 ])
 
-const currentPath = '/report'
+const route = useRoute()
+const currentPath = computed(() => {
+  return route.path
+})
 const isCollapse = ref(false)
 function chgCollapse() {
   isCollapse.value = !isCollapse.value
@@ -93,10 +100,6 @@ function chgCollapse() {
 </script>
 
 <style scoped lang="scss">
-.flex {
-  display: flex;
-  align-items: center;
-}
 // 顶部
 
 .app-header {
@@ -147,6 +150,9 @@ function chgCollapse() {
 .app-main {
   flex: auto;
   height: calc(100vh - 72px);
-  background: rbga(240, 240, 240, 1);
+  background: rgba(240, 240, 240, 1);
+  padding: 10px;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 </style>

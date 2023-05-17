@@ -1,3 +1,28 @@
 body {
   margin: 0;
+
+  .main {
+    background: #fff;
+    padding: 30px 30px 50px 30px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+  }
+
+  .flex {
+    display: flex;
+    align-items: center;
+  }
+
+  .inputs {
+    width: 220px;
+    &~.inputs {
+      margin-left: 12px;
+    }
+  }
+
+  .t-head-cell {
+    background-color: rgb(245, 247, 250) !important;
+  }
 }
+
+
