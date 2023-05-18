@@ -1,1 +1,3 @@
-<template>a</template>
+<template>
+  <section class="r-main">role</section>
+</template>

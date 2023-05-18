@@ -35,6 +35,7 @@ const name = ref('')
 const password = ref('')
 
 function onLogin() {
+  window.localStorage.setItem('TOKEN', 'xxx')
   router.push('/')
 }
 </script>
@@ -85,6 +86,7 @@ function onLogin() {
       .logo-h {
         margin: 0;
         font-size: 34px;
+        color: white;
       }
     }
     .login-img {
@@ -103,6 +105,7 @@ function onLogin() {
         transform: translateX(-6vw);
         animation: leftSide 0.5s linear forwards;
         animation-delay: 0.1s;
+        color: white;
       }
       .box-text {
         display: inline-block;
