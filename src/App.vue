@@ -1,9 +1,12 @@
 <template>
-  <el-config-provider :locale="zhCn" size="large">
+  <a-config-provider :locale="zhCN">
     <RouterView />
-  </el-config-provider>
+  </a-config-provider>
 </template>
 
 <script setup>
-import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
+import zhCN from 'ant-design-vue/es/locale/zh_CN'
+import dayjs from 'dayjs'
+import 'dayjs/locale/zh-cn'
+dayjs.locale('zh-cn')
 </script>

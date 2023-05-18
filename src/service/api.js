@@ -16,12 +16,16 @@ export const apis = {
   addRole: '/api/back/role/save',
   putRole: '/api/back/role/update',
   getRoleDetail: '/api/back/role/get',
-  getRoleList: '/api/back/role/page'
+  getRoleList: '/api/back/role/page',
+
+  getUserList: '/api/back/user/page'
 }
 
 // 后台-登录
 export const postLogin = ({ data, params, configs } = {}) =>
   axios('post', '/api/back/login', data, params, configs)
+
+// 角色管理
 
 // 后台-角色新增
 export const postRole = ({ data, params, configs } = {}) =>
@@ -35,3 +39,21 @@ export const getRoleDetail = ({ data, params, configs } = {}) =>
 // 后台-角色分页
 export const getRoleList = ({ data, params, configs } = {}) =>
   axios('get', '/api/back/role/page', data, params, configs)
+
+// 用户管理
+
+// 后台-用户新增
+export const postUser = ({ data, params, configs } = {}) =>
+  axios('post', '/api/back/user/save', data, params, configs)
+
+// 后台-用户分页
+export const getUserList = ({ data, params, configs } = {}) =>
+  axios('get', '/api/back/user/page', data, params, configs)
+
+// 后台-用户更新
+export const putUser = ({ data, params, configs } = {}) =>
+  axios('post', '/api/back/user/update', data, params, configs)
+
+// 后台-用户查询
+export const getUserDetail = ({ data, params, configs } = {}) =>
+  axios('get', '/api/back/user/get', data, params, configs)
