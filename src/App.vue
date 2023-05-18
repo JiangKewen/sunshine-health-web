@@ -8,5 +8,11 @@
 import zhCN from 'ant-design-vue/es/locale/zh_CN'
 import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn'
+import router from './router'
 dayjs.locale('zh-cn')
+
+const token = window.localStorage.getItem('TOKEN') || ''
+if (!token) {
+  router.push('/login')
+}
 </script>

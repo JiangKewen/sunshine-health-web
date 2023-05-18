@@ -8,7 +8,7 @@
         </div>
         <div class="login-img">
           <img class="box-img" src="@/assets/login-box-bg.svg" alt="" />
-          <h3 class="box-title">开箱即用的中后台管理系统</h3>
+          <h3 class="box-title">富阳阳光健康后台管理系统</h3>
           <span class="box-text">输入您的用户名密码开始使用！</span>
         </div>
       </div>
@@ -22,16 +22,21 @@
           type="password"
           placeholder="密码"
         />
-        <a-button size="large" class="form-btn" type="primary">登录</a-button>
+        <a-button size="large" class="form-btn" type="primary" @click="onLogin">登录</a-button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
+import router from '@/router'
 import { ref } from 'vue'
 const name = ref('')
 const password = ref('')
+
+function onLogin() {
+  router.push('/')
+}
 </script>
 
 <style scoped lang="scss">
@@ -67,6 +72,7 @@ const password = ref('')
       align-items: flex-start;
       flex-direction: column;
       justify-content: space-between;
+      user-select: none;
     }
     .login-logo {
       display: flex;
