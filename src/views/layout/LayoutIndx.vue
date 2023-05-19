@@ -15,25 +15,25 @@
       >
         <a-menu-item key="/report" @click="goPage('/report')">
           <template #icon>
-            <DesktopOutlined />
+            <CopyOutlined />
           </template>
           <span>报告管理</span>
         </a-menu-item>
         <a-menu-item key="/customer" @click="goPage('/customer')">
           <template #icon>
-            <InboxOutlined />
+            <IdcardOutlined />
           </template>
           <span>档案管理</span>
         </a-menu-item>
         <a-menu-item key="/user" @click="goPage('/user')">
           <template #icon>
-            <InboxOutlined />
+            <TeamOutlined />
           </template>
           <span>用户管理</span>
         </a-menu-item>
         <a-menu-item key="/role" @click="goPage('/role')">
           <template #icon>
-            <InboxOutlined />
+            <VerifiedOutlined />
           </template>
           <span>角色管理</span>
         </a-menu-item>
@@ -77,8 +77,10 @@ import { reactive, watch } from 'vue'
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  DesktopOutlined,
-  InboxOutlined
+  CopyOutlined,
+  IdcardOutlined,
+  TeamOutlined,
+  VerifiedOutlined
 } from '@ant-design/icons-vue'
 import router from '@/router'
 import { useRoute } from 'vue-router'
