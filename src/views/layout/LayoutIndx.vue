@@ -41,10 +41,10 @@
     </div>
     <main class="app-main">
       <section class="app-top">
-        <a-button @click="toggleCollapsed">
-          <MenuUnfoldOutlined v-if="state.collapsed" />
-          <MenuFoldOutlined v-else />
-        </a-button>
+        <div @click="toggleCollapsed" class="coll-btns">
+          <MenuUnfoldOutlined v-show="state.collapsed" />
+          <MenuFoldOutlined v-show="!state.collapsed" />
+        </div>
         <a-dropdown>
           <span class="app-use-name" @click.prevent>
             nginx孙
@@ -67,6 +67,7 @@
             </transition>
           </template>
         </RouterView>
+        <footer class="app-footer">Copyright ©2023 健康管理系统</footer>
       </section>
     </main>
   </div>
@@ -154,10 +155,24 @@ function goPage(path) {
     border-bottom: 1px solid #eee;
     border-left: 1px solid #eee;
     padding: 8px 32px 8px 12px;
+    height: 52px;
+    box-sizing: border-box;
+    .coll-btns {
+      font-size: 20px;
+      cursor: pointer;
+    }
   }
   .route-wrap {
     // padding: 12px 20px;
     position: relative;
+    height: calc(100% - 52px);
+    .app-footer {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #d9d9d9;
+    }
   }
 }
 </style>

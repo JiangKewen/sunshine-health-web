@@ -34,11 +34,47 @@ body {
     margin: 0;
   }
 
-  .r-main {
+  // 表格布局开始
+  .ff-main {
     position: absolute;
     left: 16px;
     right: 16px;
-    top: 16px;
+    top: 12px;
+    height: calc(100% - 58px);
+    display: flex;
+    flex-flow: column;
+    overflow: hidden;
+  }
+  .ff-main-search {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    background: #fff;
+    padding: 14px 36px;
+    border-radius: 2px;
+  }
+  .ff-main-table {
+    margin-top: 14px;
+    padding: 14px 36px;
+    background: #fff;
+    flex: auto;
+    overflow-y: auto;
+    .ff-table-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+  }
+  // 表格布局结束
+
+  // input等的宽度
+  .f-input {
+    width: 230px;
+  }
+  // 按钮组的间距
+  .ff-btns {
+    margin-right: 6px;
   }
 }
 
