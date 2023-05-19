@@ -3,21 +3,18 @@ import './assets/main.scss'
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 
-// import Antd from 'ant-design-vue'
-// import 'ant-design-vue/dist/antd.less'
-// import '@/assets/ant.less'
-
-// import { Modal, message} from 'ant-design-vue';
-// import 'ant-design-vue/es/message/style/css'
-// import 'ant-design-vue/es/modal/style/css'
-
 import App from './App.vue'
 import router from './router'
+import antdv from './components/antd.js'
 
 const app = createApp(App)
 
 // app.use(Antd)
 app.use(createPinia())
 app.use(router)
+app.use(antdv)
 
-app.mount('#app')
+// 在资源加载完成后进行挂载
+window.addEventListener('DOMContentLoaded', () => {
+  app.mount('#app')
+})
