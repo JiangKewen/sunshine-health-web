@@ -37,6 +37,14 @@
 </template>
 
 <script setup>
+import {
+  Button as AButton,
+  Input as AInput,
+  Form as AForm,
+  FormItem as AFormItem,
+  RangePicker as ARangePicker,
+  Table as ATable
+} from 'ant-design-vue'
 import { reactive } from 'vue'
 
 const formState = reactive({

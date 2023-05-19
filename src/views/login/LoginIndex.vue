@@ -29,6 +29,7 @@
 </template>
 
 <script setup>
+import { Button as AButton, Input as AInput } from 'ant-design-vue'
 import router from '@/router'
 import { ref } from 'vue'
 const name = ref('')

@@ -26,7 +26,7 @@ export default defineConfig({
     }
   },
   server: {
-    open: true,
+    // open: true,
     proxy: {
       '/auth': {
         target: 'https://jiajianup.top',
