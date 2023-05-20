@@ -14,13 +14,20 @@
       </div>
       <div class="login-right">
         <h3 class="form-title">登录</h3>
-        <a-input size="large" class="form-input" v-model:value="name" placeholder="账号" />
+        <a-input
+          size="large"
+          class="form-input"
+          v-model:value="name"
+          placeholder="账号"
+          @keyup.enter="onLogin"
+        />
         <a-input
           size="large"
           class="form-input"
           v-model:value="password"
           type="password"
           placeholder="密码"
+          @keyup.enter="onLogin"
         />
         <a-button size="large" class="form-btn" type="primary" @click="onLogin">登录</a-button>
       </div>
@@ -29,15 +36,45 @@
 </template>
 
 <script setup>
-import { Button as AButton, Input as AInput } from 'ant-design-vue'
+import { Button as AButton, Input as AInput, message } from 'ant-design-vue'
 import router from '@/router'
+import { setToken } from '@/service/axios'
 import { ref } from 'vue'
+import { postLogin } from '@/service/api'
 const name = ref('')
 const password = ref('')
 
 function onLogin() {
-  window.localStorage.setItem('TOKEN', 'xxx')
-  router.push('/')
+  if (!name.value || !password.value) {
+    message.error('请输入用户名密码')
+    return
+  }
+  postLogin({
+    data: {
+      username: name.value,
+      password: password.value
+    }
+  })
+    .then((res) => {
+      console.log('res', res)
+      if (res.code === 200) {
+        // expire: 86400000
+        // mobile: "18868717684"
+        // name: "系统管理员"
+        // token: "e8261baf407b467d90822b0517cfaba2"
+        // userId: 1
+        // username: "admin"
+        window.localStorage.setItem('TOKEN', res.data.token)
+        window.localStorage.setItem('USER', JSON.stringify(res.data))
+        setToken(res.data.token)
+        router.push('/')
+      } else {
+        message.error(res.msg || '登录失败，请稍后再试')
+      }
+    })
+    .catch((err) => {
+      message.error(err.message || '登录失败，请稍后再试')
+    })
 }
 </script>
 

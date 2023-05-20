@@ -30,6 +30,7 @@ export default defineConfig({
     proxy: {
       '/auth': {
         target: 'https://jiajianup.top',
+        // target: 'https://jiajianup.top',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/auth/, '')
       }

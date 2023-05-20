@@ -6,7 +6,12 @@ import { createPinia } from 'pinia'
 
 import App from './App.vue'
 import router from './router'
+import { setToken } from './service/axios'
 
+const oldToken = window.localStorage.getItem('TOKEN')
+if (oldToken) {
+  setToken(oldToken)
+}
 const app = createApp(App)
 
 // app.use(Antd)

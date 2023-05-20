@@ -47,7 +47,7 @@
         </div>
         <a-dropdown>
           <span class="app-use-name" @click.prevent>
-            nginx孙
+            {{ username }}
             <DownOutlined />
           </span>
           <template #overlay>
@@ -74,7 +74,7 @@
 </template>
 <script setup>
 import { Menu as AMenu, Dropdown as ADropdown, MenuItem as AMenuItem } from 'ant-design-vue'
-import { reactive, watch } from 'vue'
+import { reactive, watch, ref, onMounted } from 'vue'
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -85,6 +85,12 @@ import {
 } from '@ant-design/icons-vue'
 import router from '@/router'
 import { useRoute } from 'vue-router'
+
+const username = ref('未登录')
+onMounted(() => {
+  const user = JSON.parse(window.localStorage.getItem('USER') || '{}')
+  username.value = user.username
+})
 
 const route = useRoute()
 const current = route.path

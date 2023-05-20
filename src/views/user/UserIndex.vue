@@ -2,112 +2,135 @@
   <section class="ff-main">
     <div class="ff-main-search">
       <a-form :model="formState" layout="inline" :label-col="labelCol" :wrapper-col="wrapperCol">
-        <a-form-item label="报告名称" style="margin-bottom: 0">
+        <a-form-item label="姓名" style="margin-bottom: 0">
           <a-input class="f-input" v-model:value="formState.name" allowClear placeholder="请输入" />
-        </a-form-item>
-        <a-form-item label="创建时间" style="margin-bottom: 0">
-          <a-range-picker class="f-input" v-model:value="formState.times" allowClear />
         </a-form-item>
       </a-form>
       <div>
-        <a-button style="margin-right: 8px">重置</a-button>
-        <a-button type="primary">查询</a-button>
+        <a-button
+          style="margin-right: 8px"
+          @click="
+            () => {
+              formState.name = ''
+              getData(1)
+            }
+          "
+          >重置</a-button
+        >
+        <a-button type="primary" @click="getData(1)">查询</a-button>
       </div>
     </div>
 
     <div class="ff-main-table">
       <div class="ff-table-header">
-        <h3>报告列表</h3>
+        <h3>用户列表</h3>
         <div>
-          <a-button type="primary">新增</a-button>
+          <a-button type="primary" @click="onAdd">新增</a-button>
         </div>
       </div>
       <div class="table-body">
         <a-table :dataSource="dataSource" :columns="columns" :pagination="pagination">
           <template #bodyCell="{ column, record }">
+            <template v-if="column.key === 'modifyDate'">
+              <span>{{ timeFormat(record.modifyDate) }}</span>
+            </template>
             <template v-if="column.key === 'action'">
-              <a-button class="ff-btns" @click="onEdit(record.name)">编辑</a-button>
-              <a-button @click="onEdit(record.name)" type="primary">查看</a-button>
+              <a-button class="ff-btns" @click="onEdit(record)">编辑</a-button>
+              <a-popconfirm
+                title="确认删除?"
+                ok-text="删除"
+                cancel-text="取消"
+                @confirm="onDelete(record)"
+              >
+                <a-button>删除</a-button>
+              </a-popconfirm>
             </template>
           </template>
         </a-table>
       </div>
     </div>
   </section>
+
+  <a-modal v-if="ifModalDone" v-model:visible="visibleModel" :title="visibleTitle" @ok="handleOk">
+    <a-form :model="addFormState.data" :label-col="addLabelCol" :wrapper-col="addWrapperCol">
+      <a-form-item label="姓名">
+        <a-input v-model:value="addFormState.data.name" allowClear placeholder="请输入" />
+      </a-form-item>
+      <a-form-item label="用户名">
+        <a-input v-model:value="addFormState.data.username" allowClear placeholder="请输入" />
+      </a-form-item>
+      <a-form-item v-if="ifAdd" label="密码">
+        <a-input v-model:value="addFormState.data.password" allowClear placeholder="请输入" />
+      </a-form-item>
+      <a-form-item label="角色">
+        <a-select
+          ref="select"
+          v-model:value="addFormState.data.roleIdList"
+          allowClear
+          mode="multiple"
+          placeholder="请选择"
+        >
+          <a-select-option v-for="item in roleAll" :key="item.roleId" :value="item.roleId">
+            {{ item.roleName }}
+          </a-select-option>
+        </a-select>
+      </a-form-item>
+    </a-form>
+  </a-modal>
 </template>
 
 <script setup>
+import { getRoleAll, getUserList, postUser, putUser, delUser, getUserDetail } from '@/service/api'
 import {
+  message,
+  Modal as AModal,
   Button as AButton,
   Input as AInput,
   Form as AForm,
   FormItem as AFormItem,
-  RangePicker as ARangePicker,
-  Table as ATable
+  Popconfirm as APopconfirm,
+  Table as ATable,
+  Select as ASelect,
+  SelectOption as ASelectOption
 } from 'ant-design-vue'
-import { reactive } from 'vue'
+import { timeFormat } from '@/utils/index'
+import { reactive, ref, computed } from 'vue'
 
+// 搜索数据
 const formState = reactive({
-  name: '',
-  times: []
+  name: ''
 })
-
 const labelCol = { style: { width: '80px' } }
 const wrapperCol = { span: 14 }
 
-const dataSource = [
-  {
-    key: '1',
-    name: '胡彦斌',
-    age: 32,
-    address: '西湖区湖底公园1号'
-  },
-  {
-    key: '2',
-    name: '胡彦祖',
-    age: 42,
-    address: '西湖区湖底公园1号'
-  },
-  {
-    key: '3',
-    name: '胡彦祖',
-    age: 36,
-    address: '西湖区湖底公园21号'
-  },
-  {
-    key: '4',
-    name: '胡彦祖',
-    age: 21,
-    address: '西湖区湖底公园13号'
-  },
-  {
-    key: '5',
-    name: '胡彦祖',
-    age: 56,
-    address: '西湖区湖底公园14号'
-  }
-]
-
+// 表格数据
+const dataSource = ref([])
 const columns = [
+  {
+    title: '用户名',
+    dataIndex: 'username',
+    key: 'username'
+  },
   {
     title: '姓名',
     dataIndex: 'name',
     key: 'name'
   },
   {
-    title: '年龄',
-    dataIndex: 'age',
-    key: 'age'
+    title: '创建时间',
+    dataIndex: 'modifyDate',
+    key: 'modifyDate'
   },
+  // {
+  //   title: '用户角色',
+  //   dataIndex: 'roleIdList',
+  //   key: 'roleIdList'
+  // },
   {
-    title: '住址',
-    dataIndex: 'address',
-    key: 'address'
-  },
-  {
-    title: 'Action',
+    title: '操作',
     dataIndex: 'action',
-    key: 'action'
+    key: 'action',
+    width: '240px'
   }
 ]
 const pagination = reactive({
@@ -125,10 +148,185 @@ const pagination = reactive({
   }
 })
 
-function getData(current, size) {
-  console.log(current, size)
+function getData(current, size = pagination.pageSize) {
   pagination.current = current
   pagination.pageSize = size
+  dataSource.value = []
+  pagination.total = 0
+  getUserList({
+    params: {
+      currPage: pagination.current,
+      pageSize: pagination.pageSize,
+      ...formState
+    }
+  }).then((res) => {
+    // createDate: 1684328054000
+    // creator: 1
+    // creatorName: "系统管理员"
+    // delFlag: false
+    // id: 2
+    // mobile: "18868717684"
+    // modifyDate: 1684328054000
+    // name: "管理人sjj"
+    // password: "02d962295e2c10f56cce5b14175e4fe7f04351d57db4ce60c1e144364694356d"
+    // roleIdList: null
+    // salt: "DzHrklquvnFj3pmTCWjh"
+    // status: false
+    // userType: 107002
+    // username: "glrsjj"
+    if (res.code === 200) {
+      dataSource.value = res.data.list
+      pagination.total = res.data.totalCount
+    }
+  })
+}
+getData(1)
+
+const onDelete = (data) => {
+  delUser({
+    id: data.id
+  })
+    .then((res) => {
+      if (res.code === 200) {
+        message.success('删除用户成功')
+        getData(1)
+      } else {
+        message.error(res.msg || '删除用户失败')
+      }
+    })
+    .catch((err) => {
+      message.error(err.message || '删除用户失败，请稍后再试')
+    })
+}
+
+// 弹窗数据
+const initForm = {
+  name: '',
+  username: '',
+  password: '',
+  userType: '',
+  status: '',
+  roleIdList: []
+}
+const addFormState = reactive({
+  data: {}
+})
+initAddFormState()
+function initAddFormState() {
+  addFormState.data = JSON.parse(JSON.stringify(initForm))
+}
+function setAddFormState(obj) {
+  for (const key in addFormState.data) {
+    if (Object.hasOwnProperty.call(addFormState.data, key)) {
+      addFormState.data[key] = obj[key]
+    }
+  }
+}
+const editId = ref(null)
+
+const addLabelCol = { style: { width: '80px' } }
+const addWrapperCol = { span: 18 }
+
+const visibleModel = ref(false)
+const visibleTitle = ref('新增用户')
+const ifAdd = computed(() => {
+  return visibleTitle.value === '新增用户'
+})
+
+const onAdd = () => {
+  getRoles()
+  visibleModel.value = true
+  visibleTitle.value = '新增用户'
+  initAddFormState()
+  editId.value = null
+}
+
+const onEdit = (data) => {
+  getRoles()
+  getUserDetail({
+    params: {
+      id: data.id
+    }
+  })
+    .then((res) => {
+      if (res.code === 200) {
+        const detail = res.data
+
+        editId.value = detail.id
+        setAddFormState(detail)
+        addFormState.data.roleIdList = detail.roleIdList ? [...detail.roleIdList] : []
+        delete addFormState.data.password
+        visibleModel.value = true
+        visibleTitle.value = '编辑用户'
+      } else {
+        message.error(res.msg || '获取用户信息失败')
+      }
+    })
+    .catch((err) => {
+      message.error(err.message || '获取用户信息失败')
+    })
+}
+
+const handleOk = () => {
+  if (!ifAdd.value) {
+    submitEdit()
+  } else {
+    submitAdd()
+  }
+}
+
+const submitAdd = () => {
+  postUser({
+    data: {
+      ...addFormState.data
+    }
+  })
+    .then((res) => {
+      if (res.code === 200) {
+        message.success('新增用户成功')
+        getData(1)
+        visibleModel.value = false
+      } else {
+        message.error(res.msg || '新增用户失败')
+      }
+    })
+    .catch((err) => {
+      message.error(err.message || '新增用户失败，请稍后再试')
+    })
+}
+
+const submitEdit = () => {
+  putUser({
+    data: {
+      id: editId.value,
+      ...addFormState.data
+    }
+  })
+    .then((res) => {
+      if (res.code === 200) {
+        message.success('编辑用户成功')
+        getData(1)
+        visibleModel.value = false
+      } else {
+        message.error(res.msg || '编辑用户失败')
+      }
+    })
+    .catch((err) => {
+      message.error(err.message || '编辑用户失败，请稍后再试')
+    })
+}
+
+// 弹窗初始化数据
+const roleAll = ref([])
+const ifModalDone = ref(false)
+const getRoles = () => {
+  if (ifModalDone.value) return
+  ifModalDone.value = true
+  getRoleAll().then((res) => {
+    if (res.code === 200) {
+      roleAll.value = res.data
+    }
+  })
 }
 </script>
 

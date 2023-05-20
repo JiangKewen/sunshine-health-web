@@ -1,11 +1,12 @@
 import axios from 'axios'
+import { message } from 'ant-design-vue'
 
 // 取消请求
 // const source = axios.CancelToken.source();
 
 // const AUTH_TOKEN = ''
 const instance = axios.create({
-  // baseURL: import.meta.env.VITE_APP_BASEURL, // mock的时候需要关闭
+  baseURL: import.meta.env.VITE_APP_BASEURL, // mock的时候需要关闭
   headers: {
     // common: {
     //   Authorization: AUTH_TOKEN
@@ -32,7 +33,12 @@ instance.interceptors.request.use(
 // 添加响应拦截器
 instance.interceptors.response.use(
   function (response) {
-    if (response.status == 200) {
+    if (response.status === 200) {
+      if (response.data.code === 401) {
+        message.info('登录过期，请重新登录')
+        window.location.reload()
+        return Promise.reject(response)
+      }
       return response.data
     } else {
       return Promise.reject(response)
@@ -43,5 +49,10 @@ instance.interceptors.response.use(
     return Promise.reject(error)
   }
 )
+
+export const setToken = (AUTH_TOKEN) => {
+  axios.defaults.headers.common['Token'] = AUTH_TOKEN
+  instance.defaults.headers.common['Token'] = AUTH_TOKEN
+}
 
 export default instance
