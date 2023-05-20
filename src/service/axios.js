@@ -36,7 +36,9 @@ instance.interceptors.response.use(
     if (response.status === 200) {
       if (response.data.code === 401) {
         message.info('登录过期，请重新登录')
-        window.location.reload()
+        setTimeout(() => {
+          window.location.href = '/login'
+        }, 16)
         return Promise.reject(response)
       }
       return response.data

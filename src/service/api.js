@@ -91,7 +91,7 @@ export const postReport = ({ data, params, configs } = {}) =>
 
 // 后台-报告更新
 export const putReport = ({ data, params, configs } = {}) =>
-  axios('post', '/api/back/record/save', data, params, configs)
+  axios('post', '/api/back/record/update', data, params, configs)
 
 // 后台-报告分页
 export const getReportPage = ({ data, params, configs } = {}) =>

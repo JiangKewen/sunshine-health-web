@@ -56,7 +56,6 @@ function onLogin() {
     }
   })
     .then((res) => {
-      console.log('res', res)
       if (res.code === 200) {
         // expire: 86400000
         // mobile: "18868717684"

@@ -3,21 +3,16 @@
     <div class="ff-main-search">
       <!-- TODO 传参待确认 -->
       <a-form :model="formState" layout="inline" :label-col="labelCol" :wrapper-col="wrapperCol">
-        <a-form-item label="姓名" style="margin-bottom: 0">
+        <a-form-item label="姓名">
           <a-input
             class="f-input"
-            v-model:value="formState.idName"
+            v-model:value="formState.personId"
             allowClear
             placeholder="请输入"
           />
         </a-form-item>
-        <a-form-item label="报告时间" style="margin-bottom: 0">
-          <a-input
-            class="f-input"
-            v-model:value="formState.idCard"
-            allowClear
-            placeholder="请输入"
-          />
+        <a-form-item label="体检时间" style="width: 420px">
+          <a-range-picker v-model:value="formState.year" allowClear />
         </a-form-item>
       </a-form>
       <div>
@@ -25,8 +20,8 @@
           style="margin-right: 8px"
           @click="
             () => {
-              formState.idName = ''
-              formState.idCard = ''
+              formState.personId = ''
+              formState.year = ''
               getData(1)
             }
           "
@@ -139,6 +134,7 @@ import {
   Form as AForm,
   FormItem as AFormItem,
   Popconfirm as APopconfirm,
+  RangePicker as ARangePicker,
   Table as ATable,
   Select as ASelect,
   // SelectOption as ASelectOption,
@@ -152,8 +148,10 @@ import { reactive, ref, computed } from 'vue'
 
 // 搜索数据
 const formState = reactive({
-  idName: '',
-  idCard: ''
+  personId: '',
+  year: '',
+  startDate: '',
+  endDate: ''
 })
 const labelCol = { style: { width: '80px' } }
 const wrapperCol = { span: 14 }
@@ -203,11 +201,18 @@ function getData(current, size = pagination.pageSize) {
   pagination.pageSize = size
   dataSource.value = []
   pagination.total = 0
+  const params = {
+    personId: formState.personId
+  }
+  if (formState.year && formState.year.length) {
+    params.startDate = dayjs(formState.year[0]).format('YYYY-MM-DD')
+    params.endDate = dayjs(formState.year[1]).format('YYYY-MM-DD')
+  }
   getReportPage({
     params: {
       currPage: pagination.current,
       pageSize: pagination.pageSize,
-      ...formState
+      ...params
     }
   }).then((res) => {
     // createDate: 1684551340000
@@ -246,7 +251,7 @@ const onDelete = (data) => {
 
 // 弹窗数据
 const initForm = {
-  personId: [],
+  personId: undefined,
   recordDate: '',
   ossUrl: ''
 }
@@ -264,6 +269,7 @@ function setAddFormState(obj) {
       addFormState.data[key] = obj[key]
     }
   }
+  addFormState.data['personId'] = obj['personId']
 }
 const editId = ref(null)
 
@@ -297,7 +303,6 @@ const onEdit = (data) => {
 
         editId.value = detail.id
         setAddFormState(detail)
-        addFormState.data.personId = [detail.personId]
         addFormState.data.recordDate = dayjs(detail.recordDate)
         visibleModel.value = true
         visibleTitle.value = '编辑报告'
