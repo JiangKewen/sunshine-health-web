@@ -10,7 +10,7 @@
             placeholder="请输入"
           />
         </a-form-item>
-        <a-form-item label="档案号" style="margin-bottom: 0">
+        <a-form-item label="身份证" style="margin-bottom: 0">
           <a-input
             class="f-input"
             v-model:value="formState.idCard"
@@ -66,14 +66,19 @@
   </section>
 
   <a-modal v-if="ifModalDone" v-model:visible="visibleModel" :title="visibleTitle" @ok="handleOk">
-    <a-form :model="addFormState.data" :label-col="addLabelCol" :wrapper-col="addWrapperCol">
-      <a-form-item label="姓名">
+    <a-form
+      ref="formRef"
+      :model="addFormState.data"
+      :label-col="addLabelCol"
+      :wrapper-col="addWrapperCol"
+    >
+      <a-form-item name="idName" label="姓名" :rules="rules.idName">
         <a-input v-model:value="addFormState.data.idName" allowClear placeholder="请输入" />
       </a-form-item>
-      <a-form-item label="档案号">
+      <a-form-item name="idCard" label="身份证" :rules="rules.idCard">
         <a-input v-model:value="addFormState.data.idCard" allowClear placeholder="请输入" />
       </a-form-item>
-      <a-form-item label="手机号">
+      <a-form-item name="mobile" label="手机号" :rules="rules.mobile">
         <a-input v-model:value="addFormState.data.mobile" allowClear placeholder="请输入" />
       </a-form-item>
     </a-form>
@@ -103,23 +108,58 @@ const formState = reactive({
 const labelCol = { style: { width: '80px' } }
 const wrapperCol = { span: 14 }
 
+const rules = {
+  idName: [{ required: true, message: '请输入姓名' }],
+  idCard: [
+    {
+      validator: async (_rule, value) => {
+        if (!value) {
+          return Promise.reject('请输入身份证')
+        }
+        if (!/(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/.test(value)) {
+          return Promise.reject('请输入合法身份证')
+        }
+        return Promise.resolve()
+      },
+      trigger: 'blur'
+    }
+  ],
+  mobile: [
+    {
+      validator: async (_rule, value) => {
+        if (!value) {
+          return Promise.reject('请输入手机号')
+        }
+        if (!/^[1][3,4,5,7,8][0-9]{9}$/.test(value)) {
+          return Promise.reject('请输入合法手机号')
+        }
+        return Promise.resolve()
+      },
+      trigger: 'blur'
+    }
+  ]
+}
+
 // 表格数据
 const dataSource = ref([])
 const columns = [
   {
     title: '姓名',
     dataIndex: 'idName',
-    key: 'idName'
+    key: 'idName',
+    width: 120
   },
   {
-    title: '档案号',
+    title: '身份证',
     dataIndex: 'idCard',
     key: 'idCard'
   },
   {
     title: '手机号',
     dataIndex: 'mobile',
-    key: 'mobile'
+    key: 'mobile',
+    width: 180,
+    ellipsis: true
   },
   {
     title: '创建时间',
@@ -179,7 +219,9 @@ getData(1)
 
 const onDelete = (data) => {
   delPerson({
-    id: data.id
+    params: {
+      id: data.id
+    }
   })
     .then((res) => {
       if (res.code === 200) {
@@ -257,12 +299,17 @@ const onEdit = (data) => {
     })
 }
 
+const formRef = ref(null)
 const handleOk = () => {
-  if (!ifAdd.value) {
-    submitEdit()
-  } else {
-    submitAdd()
-  }
+  formRef.value.validateFields(['idName', 'idCard', 'mobile']).then((valid) => {
+    if (valid) {
+      if (!ifAdd.value) {
+        submitEdit()
+      } else {
+        submitAdd()
+      }
+    }
+  })
 }
 
 const submitAdd = () => {

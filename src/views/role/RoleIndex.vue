@@ -46,8 +46,13 @@
   </section>
 
   <a-modal v-model:visible="visibleModel" :title="visibleTitle" @ok="handleOk">
-    <a-form :model="addFormState" :label-col="addLabelCol" :wrapper-col="addWrapperCol">
-      <a-form-item label="角色名称">
+    <a-form
+      ref="formRef"
+      :model="addFormState"
+      :label-col="addLabelCol"
+      :wrapper-col="addWrapperCol"
+    >
+      <a-form-item name="name" :rules="rules.name" label="角色名称">
         <a-input v-model:value="addFormState.name" allowClear placeholder="请输入" />
       </a-form-item>
     </a-form>
@@ -118,6 +123,10 @@ const pagination = reactive({
   }
 })
 
+const rules = {
+  name: [{ required: true, message: '请输入角色名称' }]
+}
+
 function getData(current, size = pagination.pageSize) {
   pagination.current = current
   pagination.pageSize = size
@@ -166,14 +175,17 @@ const onAdd = () => {
   editId.value = null
   addFormState.name = ''
 }
+const formRef = ref(null)
 const handleOk = () => {
-  if (visibleTitle.value === '编辑角色') {
-    submitEdit()
-  } else {
-    submitAdd()
-  }
-  // message.success('新增角色成功')
-  // visibleModel.value = false
+  formRef.value.validateFields(['name']).then((valid) => {
+    if (valid) {
+      if (visibleTitle.value === '编辑角色') {
+        submitEdit()
+      } else {
+        submitAdd()
+      }
+    }
+  })
 }
 
 const onEdit = (data) => {

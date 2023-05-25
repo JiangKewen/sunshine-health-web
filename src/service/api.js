@@ -103,4 +103,4 @@ export const getRerportDetail = ({ data, params, configs } = {}) =>
 
 // 后台-报告删除
 export const delReport = ({ data, params, configs } = {}) =>
-  axios('delete', '/api/back/record/delete', data, params, configs)
+  axios('get', '/api/back/record/delete', data, params, configs)

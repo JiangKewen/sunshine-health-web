@@ -6,7 +6,7 @@
         <a-form-item label="姓名">
           <a-input
             class="f-input"
-            v-model:value="formState.personId"
+            v-model:value="formState.personName"
             allowClear
             placeholder="请输入"
           />
@@ -20,7 +20,7 @@
           style="margin-right: 8px"
           @click="
             () => {
-              formState.personId = ''
+              formState.personName = ''
               formState.year = ''
               getData(1)
             }
@@ -62,8 +62,18 @@
   </section>
 
   <a-modal v-if="ifModalDone" v-model:visible="visibleModel" :title="visibleTitle" @ok="handleOk">
-    <a-form :model="addFormState.data" :label-col="addLabelCol" :wrapper-col="addWrapperCol">
-      <a-form-item label="客户姓名">
+    <a-form
+      :model="addFormState.data"
+      autocomplete="off"
+      :label-col="addLabelCol"
+      :wrapper-col="addWrapperCol"
+      ref="formRef"
+    >
+      <a-form-item
+        name="personId"
+        label="客户姓名"
+        :rules="[{ required: true, message: '请选择客户' }]"
+      >
         <a-select
           ref="select"
           v-model:value="addFormState.data.personId"
@@ -84,22 +94,29 @@
               v-model:current="modalPage.current"
               :total="modalPage.total"
               show-less-items
+              @change="(page) => changeModalPage(page, $event)"
             />
           </template>
         </a-select>
       </a-form-item>
-      <a-form-item label="报告时间">
+      <a-form-item
+        name="recordDate"
+        label="报告时间"
+        :rules="[{ required: true, message: '请输入报告时间' }]"
+      >
         <a-date-picker
           style="width: 100%"
           v-model:value="addFormState.data.recordDate"
           allowClear
         />
       </a-form-item>
-      <a-form-item label="上传报告">
+      <a-form-item label="上传报告" :rules="[{ required: true, message: '请上传报告' }]">
+        <!-- accept=".pdf" -->
         <a-upload
           v-model:file-list="fileList"
           name="file"
           :action="fileURL"
+          :maxCount="1"
           :headers="{
             Token: Token
           }"
@@ -148,7 +165,7 @@ import { reactive, ref, computed } from 'vue'
 
 // 搜索数据
 const formState = reactive({
-  personId: '',
+  personName: '',
   year: '',
   startDate: '',
   endDate: ''
@@ -161,8 +178,8 @@ const dataSource = ref([])
 const columns = [
   {
     title: '客户姓名',
-    dataIndex: 'personId',
-    key: 'personId'
+    dataIndex: 'personName',
+    key: 'personName'
   },
   {
     title: '体检时间',
@@ -202,7 +219,7 @@ function getData(current, size = pagination.pageSize) {
   dataSource.value = []
   pagination.total = 0
   const params = {
-    personId: formState.personId
+    personName: formState.personName
   }
   if (formState.year && formState.year.length) {
     params.startDate = dayjs(formState.year[0]).format('YYYY-MM-DD')
@@ -234,7 +251,9 @@ getData(1)
 
 const onDelete = (data) => {
   delReport({
-    id: data.id
+    params: {
+      id: data.id
+    }
   })
     .then((res) => {
       if (res.code === 200) {
@@ -288,6 +307,7 @@ const onAdd = () => {
   visibleTitle.value = '新增报告'
   initAddFormState()
   editId.value = null
+  fileList.value = []
 }
 
 const onEdit = (data) => {
@@ -304,6 +324,7 @@ const onEdit = (data) => {
         editId.value = detail.id
         setAddFormState(detail)
         addFormState.data.recordDate = dayjs(detail.recordDate)
+        fileList.value = detail.ossUrl ? [{ name: detail.personName || detail.recordDate }] : []
         visibleModel.value = true
         visibleTitle.value = '编辑报告'
       } else {
@@ -315,12 +336,21 @@ const onEdit = (data) => {
     })
 }
 
+const formRef = ref(null)
 const handleOk = () => {
-  if (!ifAdd.value) {
-    submitEdit()
-  } else {
-    submitAdd()
-  }
+  formRef.value.validateFields(['personId', 'recordDate']).then((valid) => {
+    if (!addFormState.data.ossUrl) {
+      message.error('请上传文件')
+      return
+    }
+    if (valid) {
+      if (!ifAdd.value) {
+        submitEdit()
+      } else {
+        submitAdd()
+      }
+    }
+  })
 }
 
 const submitAdd = () => {
@@ -373,13 +403,17 @@ const modalPage = reactive({
   current: 1,
   total: 0
 })
+const select = ref(null)
+const changeModalPage = (val) => {
+  select.value.focus()
+  getModalData(val, true)
+}
 const personAll = ref([])
 let personInitAll = []
 const ifModalDone = ref(false)
-// TODO 下拉列表的分页需要完善
-const getModalData = (current = 1) => {
+const getModalData = (current = 1, handle = false) => {
   initPersonAll()
-  if (ifModalDone.value) return
+  if (ifModalDone.value && !handle) return
   ifModalDone.value = true
   modalPage.current = current
   getPersonPage({
@@ -390,7 +424,7 @@ const getModalData = (current = 1) => {
   }).then((res) => {
     if (res.code === 200) {
       personInitAll = res.data.list
-      modalPage.total = res.data.total
+      modalPage.total = res.data.totalCount
       initPersonAll()
     }
   })
@@ -403,7 +437,6 @@ const VNodes = (_, { attrs }) => {
   return attrs.vnodes
 }
 
-// TODO 文件，多次上传，删除等，需要完善
 const onFile = (info) => {
   if (info.file.status !== 'uploading') {
     if (info.file?.response.code === 200) {

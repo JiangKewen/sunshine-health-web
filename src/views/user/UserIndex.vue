@@ -52,17 +52,22 @@
   </section>
 
   <a-modal v-if="ifModalDone" v-model:visible="visibleModel" :title="visibleTitle" @ok="handleOk">
-    <a-form :model="addFormState.data" :label-col="addLabelCol" :wrapper-col="addWrapperCol">
-      <a-form-item label="姓名">
+    <a-form
+      ref="formRef"
+      :model="addFormState.data"
+      :label-col="addLabelCol"
+      :wrapper-col="addWrapperCol"
+    >
+      <a-form-item name="name" :rules="rules.name" label="姓名">
         <a-input v-model:value="addFormState.data.name" allowClear placeholder="请输入" />
       </a-form-item>
-      <a-form-item label="用户名">
+      <a-form-item name="username" :rules="rules.username" label="用户名">
         <a-input v-model:value="addFormState.data.username" allowClear placeholder="请输入" />
       </a-form-item>
-      <a-form-item v-if="ifAdd" label="密码">
+      <a-form-item name="password" :rules="rules.password" v-if="ifAdd" label="密码">
         <a-input v-model:value="addFormState.data.password" allowClear placeholder="请输入" />
       </a-form-item>
-      <a-form-item label="角色">
+      <a-form-item name="roleIdList" :rules="rules.roleIdList" label="角色">
         <a-select
           ref="select"
           v-model:value="addFormState.data.roleIdList"
@@ -184,7 +189,9 @@ getData(1)
 
 const onDelete = (data) => {
   delUser({
-    id: data.id
+    params: {
+      id: data.id
+    }
   })
     .then((res) => {
       if (res.code === 200) {
@@ -207,6 +214,12 @@ const initForm = {
   userType: '',
   status: '',
   roleIdList: []
+}
+const rules = {
+  name: [{ required: true, message: '请输入姓名' }],
+  username: [{ required: true, message: '请输入用户名' }],
+  password: [{ required: true, message: '请输入密码' }],
+  roleIdList: [{ required: true, message: '请选择角色' }]
 }
 const addFormState = reactive({
   data: {}
@@ -267,12 +280,17 @@ const onEdit = (data) => {
     })
 }
 
+const formRef = ref(null)
 const handleOk = () => {
-  if (!ifAdd.value) {
-    submitEdit()
-  } else {
-    submitAdd()
-  }
+  formRef.value.validateFields(['name', 'username', 'password', 'roleIdList']).then((valid) => {
+    if (valid) {
+      if (!ifAdd.value) {
+        submitEdit()
+      } else {
+        submitAdd()
+      }
+    }
+  })
 }
 
 const submitAdd = () => {
