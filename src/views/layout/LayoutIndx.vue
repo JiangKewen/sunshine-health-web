@@ -89,7 +89,7 @@ import { useRoute } from 'vue-router'
 const username = ref('未登录')
 onMounted(() => {
   const user = JSON.parse(window.localStorage.getItem('USER') || '{}')
-  username.value = user.username
+  username.value = user.name
 })
 
 const route = useRoute()
