@@ -47,7 +47,7 @@
         </div>
         <a-dropdown>
           <span class="app-use-name" @click.prevent>
-            {{ username }}
+            {{ username || '未登录' }}
             <DownOutlined />
           </span>
           <template #overlay>
@@ -67,7 +67,7 @@
             </transition>
           </template>
         </RouterView>
-        <footer class="app-footer">Copyright ©2023 健康管理系统</footer>
+        <footer class="app-footer">浙ICP备2023015850</footer>
       </section>
     </main>
   </div>

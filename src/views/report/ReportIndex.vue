@@ -61,7 +61,14 @@
     </div>
   </section>
 
-  <a-modal v-if="ifModalDone" v-model:visible="visibleModel" :title="visibleTitle" @ok="handleOk">
+  <a-modal
+    v-if="ifModalDone"
+    v-model:visible="visibleModel"
+    :confirmLoading="loading"
+    :maskClosable="false"
+    :title="visibleTitle"
+    @ok="handleOk"
+  >
     <a-form
       :model="addFormState.data"
       autocomplete="off"
@@ -269,6 +276,7 @@ const onDelete = (data) => {
 }
 
 // 弹窗数据
+const loading = ref(false)
 const initForm = {
   personId: undefined,
   recordDate: '',
@@ -344,6 +352,8 @@ const handleOk = () => {
       return
     }
     if (valid) {
+      if (loading.value) return
+      loading.value = true
       if (!ifAdd.value) {
         submitEdit()
       } else {
@@ -372,6 +382,11 @@ const submitAdd = () => {
     .catch((err) => {
       message.error(err.message || '新增报告失败，请稍后再试')
     })
+    .finally(() => {
+      setTimeout(() => {
+        loading.value = false
+      }, 500)
+    })
 }
 
 const submitEdit = () => {
@@ -393,6 +408,11 @@ const submitEdit = () => {
     })
     .catch((err) => {
       message.error(err.message || '编辑报告失败，请稍后再试')
+    })
+    .finally(() => {
+      setTimeout(() => {
+        loading.value = false
+      }, 500)
     })
 }
 

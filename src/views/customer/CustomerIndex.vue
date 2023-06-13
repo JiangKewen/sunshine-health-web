@@ -31,7 +31,7 @@
           "
           >重置</a-button
         >
-        <a-button type="primary" @click="getData(1)">查询</a-button>
+        <a-button type="primary" :disabled="disabled" @click="getData(1)">查询</a-button>
       </div>
     </div>
 
@@ -65,7 +65,14 @@
     </div>
   </section>
 
-  <a-modal v-if="ifModalDone" v-model:visible="visibleModel" :title="visibleTitle" @ok="handleOk">
+  <a-modal
+    v-if="ifModalDone"
+    v-model:visible="visibleModel"
+    :title="visibleTitle"
+    :confirmLoading="loading"
+    :maskClosable="false"
+    @ok="handleOk"
+  >
     <a-form
       ref="formRef"
       :model="addFormState.data"
@@ -101,6 +108,7 @@ import { timeFormat } from '@/utils/index'
 import { reactive, ref, computed } from 'vue'
 
 // 搜索数据
+const disabled = ref(false)
 const formState = reactive({
   name: '',
   idCard: ''
@@ -111,6 +119,7 @@ const wrapperCol = { span: 14 }
 const rules = {
   idName: [{ required: true, message: '请输入姓名' }],
   idCard: [
+    // { required: true, message: '请输入身份证' },
     {
       validator: async (_rule, value) => {
         if (!value) {
@@ -121,10 +130,12 @@ const rules = {
         }
         return Promise.resolve()
       },
-      trigger: 'blur'
+      trigger: 'blur',
+      required: true
     }
   ],
   mobile: [
+    // { required: true, message: '请输入手机号' },
     {
       validator: async (_rule, value) => {
         if (!value) {
@@ -135,12 +146,14 @@ const rules = {
         }
         return Promise.resolve()
       },
-      trigger: 'blur'
+      trigger: 'blur',
+      required: true
     }
   ]
 }
 
 // 表格数据
+const loading = ref(false)
 const dataSource = ref([])
 const columns = [
   {
@@ -189,6 +202,7 @@ const pagination = reactive({
 })
 
 function getData(current, size = pagination.pageSize) {
+  disabled.value = true
   pagination.current = current
   pagination.pageSize = size
   dataSource.value = []
@@ -199,21 +213,25 @@ function getData(current, size = pagination.pageSize) {
       pageSize: pagination.pageSize,
       ...formState
     }
-  }).then((res) => {
-    // createDate: 1684551340000
-    // creator: 1
-    // creatorName: "系统管理员"
-    // delFlag: false
-    // id: 1
-    // idCard: 56959685
-    // idName: "张三"
-    // mobile: "13456787678"
-    // modifyDate: 1684551340000
-    if (res.code === 200) {
-      dataSource.value = res.data.list
-      pagination.total = res.data.totalCount
-    }
   })
+    .then((res) => {
+      // createDate: 1684551340000
+      // creator: 1
+      // creatorName: "系统管理员"
+      // delFlag: false
+      // id: 1
+      // idCard: 56959685
+      // idName: "张三"
+      // mobile: "13456787678"
+      // modifyDate: 1684551340000
+      if (res.code === 200) {
+        dataSource.value = res.data.list
+        pagination.total = res.data.totalCount
+      }
+    })
+    .finally(() => {
+      disabled.value = false
+    })
 }
 getData(1)
 
@@ -303,6 +321,8 @@ const formRef = ref(null)
 const handleOk = () => {
   formRef.value.validateFields(['idName', 'idCard', 'mobile']).then((valid) => {
     if (valid) {
+      if (loading.value) return
+      loading.value = true
       if (!ifAdd.value) {
         submitEdit()
       } else {
@@ -330,6 +350,11 @@ const submitAdd = () => {
     .catch((err) => {
       message.error(err.message || '新增档案失败，请稍后再试')
     })
+    .finally(() => {
+      setTimeout(() => {
+        loading.value = false
+      }, 500)
+    })
 }
 
 const submitEdit = () => {
@@ -350,6 +375,11 @@ const submitEdit = () => {
     })
     .catch((err) => {
       message.error(err.message || '编辑档案失败，请稍后再试')
+    })
+    .finally(() => {
+      setTimeout(() => {
+        loading.value = false
+      }, 500)
     })
 }
 

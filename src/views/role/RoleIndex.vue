@@ -45,7 +45,13 @@
     </div>
   </section>
 
-  <a-modal v-model:visible="visibleModel" :title="visibleTitle" @ok="handleOk">
+  <a-modal
+    v-model:visible="visibleModel"
+    :title="visibleTitle"
+    :confirmLoading="loading"
+    :maskClosable="false"
+    @ok="handleOk"
+  >
     <a-form
       ref="formRef"
       :model="addFormState"
@@ -159,6 +165,7 @@ function getData(current, size = pagination.pageSize) {
 }
 getData(1)
 
+const loading = ref(false)
 const addFormState = reactive({
   name: ''
 })
@@ -179,6 +186,8 @@ const formRef = ref(null)
 const handleOk = () => {
   formRef.value.validateFields(['name']).then((valid) => {
     if (valid) {
+      if (loading.value) return
+      loading.value = true
       if (visibleTitle.value === '编辑角色') {
         submitEdit()
       } else {
@@ -212,6 +221,11 @@ const submitAdd = () => {
     .catch((err) => {
       message.error(err.message || '新增角色失败，请稍后再试')
     })
+    .finally(() => {
+      setTimeout(() => {
+        loading.value = false
+      }, 500)
+    })
 }
 const submitEdit = () => {
   putRole({
@@ -232,10 +246,17 @@ const submitEdit = () => {
     .catch((err) => {
       message.error(err.message || '编辑角色失败，请稍后再试')
     })
+    .finally(() => {
+      setTimeout(() => {
+        loading.value = false
+      }, 500)
+    })
 }
 const onDelete = (data) => {
   delRole({
-    id: data.roleId
+    params: {
+      id: data.roleId
+    }
   })
     .then((res) => {
       if (res.code === 200) {

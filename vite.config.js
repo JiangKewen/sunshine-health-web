@@ -29,8 +29,8 @@ export default defineConfig({
     // open: true,
     proxy: {
       '/auth': {
-        target: 'https://jiajianup.top',
         // target: 'https://jiajianup.top',
+        target: 'https://sizehealth.top',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/auth/, '')
       }

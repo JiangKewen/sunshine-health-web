@@ -33,8 +33,8 @@ export const getRoleDetail = ({ data, params, configs } = {}) =>
 export const getRoleList = ({ data, params, configs } = {}) =>
   axios('get', '/api/back/role/page', data, params, configs)
 // 后台-角色删除
-export const delRole = ({ data, params, configs, id } = {}) =>
-  axios('delete', `/api/back/role/delete/${id}`, data, params, configs)
+export const delRole = ({ data, params, configs } = {}) =>
+  axios('delete', `/api/back/role/delete`, data, params, configs)
 // 后台-角色列表
 export const getRoleAll = ({ data, params, configs } = {}) =>
   axios('get', `/api/back/role/listRole`, data, params, configs)
@@ -58,8 +58,8 @@ export const getUserDetail = ({ data, params, configs } = {}) =>
   axios('get', '/api/back/user/get', data, params, configs)
 
 // 后台-用户删除
-export const delUser = ({ data, params, configs, id } = {}) =>
-  axios('delete', `/api/back/user/delete//${id}`, data, params, configs)
+export const delUser = ({ data, params, configs } = {}) =>
+  axios('delete', `/api/back/user/delete`, data, params, configs)
 
 // 档案管理
 
@@ -103,4 +103,4 @@ export const getRerportDetail = ({ data, params, configs } = {}) =>
 
 // 后台-报告删除
 export const delReport = ({ data, params, configs } = {}) =>
-  axios('get', '/api/back/record/delete', data, params, configs)
+  axios('delete', '/api/back/record/delete', data, params, configs)
