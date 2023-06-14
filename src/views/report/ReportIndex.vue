@@ -45,6 +45,7 @@
               <span>{{ timeFormat(record.modifyDate) }}</span>
             </template>
             <template v-if="column.key === 'action'">
+              <a-button class="ff-btns" @click="preview(record)">预览</a-button>
               <a-button class="ff-btns" @click="onEdit(record)">编辑</a-button>
               <a-popconfirm
                 title="确认删除?"
@@ -60,6 +61,10 @@
       </div>
     </div>
   </section>
+
+  <a-modal v-model:visible="visiblePDF" width="720px" title="预览" @ok="visiblePDF.value = false">
+    <PdfPreview v-if="visiblePDF" :pdfPath="pdfURL" />
+  </a-modal>
 
   <a-modal
     v-if="ifModalDone"
@@ -118,10 +123,10 @@
         />
       </a-form-item>
       <a-form-item label="上传报告" :rules="[{ required: true, message: '请上传报告' }]">
-        <!-- accept=".pdf" -->
         <a-upload
           v-model:file-list="fileList"
           name="file"
+          accept=".pdf"
           :action="fileURL"
           :maxCount="1"
           :headers="{
@@ -169,6 +174,16 @@ import {
 } from 'ant-design-vue'
 import { timeFormat } from '@/utils/index'
 import { reactive, ref, computed } from 'vue'
+import PdfPreview from '@/components/PdfPreview.vue'
+
+// pdf预览
+const pdfurl = import.meta.env.VITE_APP_PDF
+const visiblePDF = ref(false)
+const pdfURL = ref('')
+function preview(data) {
+  pdfURL.value = `${pdfurl}${data.ossUrl}`
+  visiblePDF.value = true
+}
 
 // 搜索数据
 const formState = reactive({

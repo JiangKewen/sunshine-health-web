@@ -33,6 +33,11 @@ export default defineConfig({
         target: 'https://sizehealth.top',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/auth/, '')
+      },
+      "/pdfurl": {
+        target: 'https://size-health.oss-cn-hangzhou.aliyuncs.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/pdfurl/, '')
       }
     }
   }

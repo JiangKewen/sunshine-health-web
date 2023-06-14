@@ -29,7 +29,9 @@
           placeholder="密码"
           @keyup.enter="onLogin"
         />
-        <a-button size="large" class="form-btn" type="primary" @click="onLogin">登录</a-button>
+        <a-button size="large" class="form-btn" type="primary" :loading="loading" @click="onLogin"
+          >登录</a-button
+        >
       </div>
     </div>
   </div>
@@ -44,11 +46,14 @@ import { postLogin } from '@/service/api'
 const name = ref('')
 const password = ref('')
 
+const loading = ref(false)
 function onLogin() {
   if (!name.value || !password.value) {
     message.error('请输入用户名密码')
     return
   }
+  if (loading.value) return
+  loading.value = true
   postLogin({
     data: {
       username: name.value,
@@ -73,6 +78,9 @@ function onLogin() {
     })
     .catch((err) => {
       message.error(err.message || '登录失败，请稍后再试')
+    })
+    .finally(() => {
+      loading.value = false
     })
 }
 </script>
