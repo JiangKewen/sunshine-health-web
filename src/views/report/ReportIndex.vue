@@ -62,7 +62,7 @@
     </div>
   </section>
 
-  <a-modal v-model:visible="visiblePDF" width="720px" title="预览" @ok="visiblePDF.value = false">
+  <a-modal v-model:visible="visiblePDF" width="720px" title="预览" @ok="visiblePDF = false">
     <PdfPreview v-if="visiblePDF" :pdfPath="pdfURL" />
   </a-modal>
 
@@ -126,6 +126,7 @@
         <a-upload
           v-model:file-list="fileList"
           name="file"
+          list-type="picture"
           accept=".pdf"
           :action="fileURL"
           :maxCount="1"

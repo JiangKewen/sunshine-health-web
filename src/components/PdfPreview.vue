@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue' 
+import { ref, onMounted } from 'vue'
 import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist'
 import { Button as AButton, Space as ASpace } from 'ant-design-vue'
 
